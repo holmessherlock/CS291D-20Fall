@@ -232,6 +232,25 @@ Let $x_2$ be the bad actor here.
 	\item \textbf{Finalization:} $x_i$, where $i \in \{1, 3, 4\}$, commits to $T$
 \end{enumerate}
 
+
+\subsection{Decentralized BFT}
+PBFT can't be applied naively to a decentralized setting like cryptocurrency system because of the following issues:
+
+\begin{itemize}
+	\item The number of actors $n$ is not known before the protocol is executed.
+	Moreover, $n$ changes dynamically as nodes are free to join or leave the network at any time.
+	\item The complexity of PBFT is $O(n^2)$.
+	In a practical system, $n$ could be huge.
+	For example, if there are $1$ million nodes present in the network, approximately $1$ trillion messages are exchanged.
+\end{itemize}
+
+The idea is to fairly sample $n^\prime \subset n$ nodes to bring the final complexity down to $O(nn^\prime)$.
+Speaking of \textit{fairness}, different protocols adapt different sampling strategies.
+In Bitcoin, Nakamoto consensus protocol proposes a technique called \textit{proof-of-work} that regulates a machine's power in the system as a function of its computational power.
+In other words, the more processing power a machine has, it has got more power in the system.
+However, \textit{proof-of-work} is resource demanding, hence not very efficient.
+\textit{Proof-of-stake} is a viable alternative that regulates a machine's power in the system as a function of the money being held in the account.
+
 \section*{References}
 \beginrefs
 \bibentry{1}{\sc Jian Liu} and {\sc Wenting Li}, and {\sc Ghassan O. Karame}, and {\sc N. Asokan}
