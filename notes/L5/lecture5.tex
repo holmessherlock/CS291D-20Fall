@@ -13,11 +13,7 @@
 %
 
 \documentclass[twoside]{article}
-\usepackage{booktabs}
-\usepackage{multirow}
-\usepackage{graphicx}
-\usepackage{xcolor}
-\usepackage{float}
+
 
 \setlength{\oddsidemargin}{0.25 in}
 \setlength{\evensidemargin}{-0.25 in}
@@ -33,6 +29,10 @@
 %
 
 \usepackage{amsmath,amsfonts,graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{xcolor}
+\usepackage{float}
 
 %
 % The following commands set up the lecnum (lecture number)
@@ -144,7 +144,8 @@ For a cryptocurrency system to be practical and usable, it should meet the follo
 	\item \textbf{Fairness:} Like in any trade, the payer receives~\cite{1} the item/service she has paid for.
 \end{itemize}
 
-\section{The Byzantine Generals Problem -- Revisited}
+
+\section{The Byzantine Generals Problem (BGP) -- Revisited}
 The Byzantine Generals Problem allegorically models a fundamental problems in the distributed systems where $n$ nodes need to come to a consensus under the following assumptions:
 
 \begin{itemize}
@@ -154,7 +155,7 @@ The Byzantine Generals Problem allegorically models a fundamental problems in th
 \end{itemize}
 
 \begin{theorem}
-	It is impossible to solve the problem unless $3f + 1 <= n$.
+	It is impossible to solve the problem unless $3f + 1 \leq n$.
 	In other words, in a synchronous network with authenticated channel where $f$ actors are corrupt, no solution will work unless there are more than 3f actors present in the network. 
 \end{theorem}
 
@@ -200,6 +201,36 @@ Either one breaks the consistency of the system.
 	\label{tab:bgp_impossbility_proof2}
 \end{table}
 \end{minipage}
+
+
+\subsection{Practical Byzantine Fault Tolerance (PBFT)}
+Practical Byzantine Fault Tolerance (PBFT) is a leader based, two-round protocol for the Byzantine Generals Problem.
+Let's assume there are $n$ actors of which $f$ are corrupt, where $3f + 1 \leq n$.
+The steps of the algorithm are:
+
+\begin{enumerate}
+	\item Some leader proposes a transaction $T$ by broadcasting it to others
+	\item When machine $x$ hears the transaction $T$, it acknowledges the receipt by broadcasting $\texttt{ACK}(x, T)$
+	\item When machine $y$ hears quorum of $\texttt{ACK}(x, T)$, it acknowledges the receipt by broadcasting $\texttt{ACK}(y, \text{quorum of } \texttt{ACK}(x, T))$.
+	A \textit{quorum} is defined as $2f + 1$ acknowledgment messages $\texttt{ACK}(x, T)$ for the same transaction $T$
+	\item When machine $z$ hears $\texttt{ACK}(y, \text{quorum of } \texttt{ACK}(x, T))$, it knows $T$ is committed
+\end{enumerate}
+
+
+\subsection{PBFT by example}
+Let's assume there are $n=4$ actors out of which $f=1$ are corrupt.
+Therefore, quorum ($2f + 1$) is $3$ messages/actor.
+There actors are $\{x-1, x_2, x_3, x_4\}$.
+We assume the leader is \textit{not} dishonest.
+Let $x_2$ be the bad actor here.
+
+\begin{enumerate}
+	\item \textbf{Round 0 (Proposal): } $x_2$ proposes a transaction $T$.
+	$x_i$, where $i \in \{1, 3, 4\}$, listens to this broadcast
+	\item \textbf{Round 1: } $x_i$ acknowledges the receipt by broadcasting $\texttt{ACK}(x_i, T)$, where $i \in \{1, 3, 4\}$
+	\item \textbf{Round 2: } $x_i$ re-acknowledges the acknowledgment messages from the round $1$ by broadcasting $\texttt{ACK}(x_i, \texttt{ACK}(\{x_j\}, T))$, where $i, j \in \{1, 3, 4\}$
+	\item \textbf{Finalization:} $x_i$, where $i \in \{1, 3, 4\}$, commits to $T$
+\end{enumerate}
 
 \section*{References}
 \beginrefs
