@@ -13,6 +13,12 @@
 %
 
 \documentclass[twoside]{article}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{float}
+
 \setlength{\oddsidemargin}{0.25 in}
 \setlength{\evensidemargin}{-0.25 in}
 \setlength{\topmargin}{-0.6 in}
@@ -127,6 +133,8 @@ For a cryptocurrency system to be practical and usable, it should meet the follo
 	\begin{itemize}
 		\item \textbf{Theft:} Only owner should be able to spend the money, and no one else.
 		\item \textbf{Consensus:} If money is spent, everybody should agree.
+		In other words, all the parties must agree to the order of transactions that have taken place in the system.
+		Also, no money can be double spent.
 	\end{itemize}
 	\item \textbf{Distributed:} The transaction log is distributed among all the parties using the system.
 	\item \textbf{Anonymity:} Only transactions are public, but not the identities of the sender, or the receiver.
@@ -136,7 +144,62 @@ For a cryptocurrency system to be practical and usable, it should meet the follo
 	\item \textbf{Fairness:} Like in any trade, the payer receives~\cite{1} the item/service she has paid for.
 \end{itemize}
 
-\subsection{A few items of note}
+\section{The Byzantine Generals Problem -- Revisited}
+The Byzantine Generals Problem allegorically models a fundamental problems in the distributed systems where $n$ nodes need to come to a consensus under the following assumptions:
+
+\begin{itemize}
+	\item \textbf{Authenticated channel:} Receivers know the source of the message they receive.
+	\item \textbf{Bad actors:} There are $f$ bad actors present in the system who try to either break the consistency of the system, or its availability.
+	\item \textbf{Delay:} Message delays are unbounded, \textit{i.e.}, the network may be unreliable.
+\end{itemize}
+
+\begin{theorem}
+	It is impossible to solve the problem unless $3f + 1 <= n$.
+	In other words, in a synchronous network with authenticated channel where $f$ actors are corrupt, no solution will work unless there are more than 3f actors present in the network. 
+\end{theorem}
+
+\subsection{Proving impossibility by example}
+Let's assume $n=3$ actors with $f=1$ corrupt actor want to agree on a bit $b \in \{0,1\}$.
+Table~\ref{tab:bgp_impossbility_proof1} and Table~\ref{tab:bgp_impossbility_proof2} show the bits sent and received by different actors.
+Actor \textbf{B} is dishonest.
+In the first case, it sends bit $0$ to \textbf{A}, and bit $1$ to \textbf{C}.
+Therefore, \textbf{A} and \textbf{C} agree on different bits---$0$ and $1$ respectively.
+In the seconds case, it sends no message at all---thus preventing \textbf{A} and \textbf{C} reach any consensus.
+Either one breaks the consistency of the system.
+
+\begin{minipage}{.45\textwidth} %
+\begin{table}[H]
+	\centering
+	\renewcommand{\arraystretch}{1.5}
+	\begin{tabular}{cc|ccc}
+		&  & \multicolumn{3}{c}{\textbf{Sent}} \\ \cline{3-5} 
+		& \textbf{} & \textbf{A} & \multicolumn{1}{c}{\textbf{B}} & \multicolumn{1}{c}{\textbf{C}} \\ \midrule
+		\multicolumn{1}{l|}{\multirow{3}{*}{\rotatebox{90}{\textbf{Received}}}} & \textbf{A} & 1 & \textcolor{red}{0} & 0 \\
+		\multicolumn{1}{l|}{} & \textbf{B} & 1 & --- & 0 \\
+		\multicolumn{1}{l|}{} & \textbf{C} & 1 & \textcolor{red}{1} & 0 \\ 
+	\end{tabular}
+	\caption{Impossibility of the Byzantine Generals Problem with less than $3f + 1$ actors.
+		\textbf{B}, who sends two different messages to \textbf{A} and \textbf{C}, is the bad actor here.}
+	\label{tab:bgp_impossbility_proof1}
+\end{table}
+\end{minipage} %
+\hfill
+\begin{minipage}{.45\textwidth} %
+\begin{table}[H]
+	\centering
+	\renewcommand{\arraystretch}{1.5}
+	\begin{tabular}{cc|ccc}
+		&  & \multicolumn{3}{c}{\textbf{Sent}} \\ \cline{3-5} 
+		& \textbf{} & \textbf{A} & \multicolumn{1}{c}{\textbf{B}} & \multicolumn{1}{c}{\textbf{C}} \\ \midrule
+		\multicolumn{1}{l|}{\multirow{3}{*}{\rotatebox{90}{\textbf{Received}}}} & \textbf{A} & 1 & \textcolor{red}{---} & 0 \\
+		\multicolumn{1}{l|}{} & \textbf{B} & 1 & --- & 0 \\
+		\multicolumn{1}{l|}{} & \textbf{C} & 1 & \textcolor{red}{---} & 0 \\ 
+	\end{tabular}
+	\caption{Impossibility of the Byzantine Generals Problem with less than $3f + 1$ actors.
+		\textbf{B}, who sends no message to \textbf{A} and \textbf{C}, is the bad actor here.}
+	\label{tab:bgp_impossbility_proof2}
+\end{table}
+\end{minipage}
 
 \section*{References}
 \beginrefs
