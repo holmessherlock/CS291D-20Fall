@@ -118,101 +118,32 @@
 % macros follow.  
 %**** IN GENERAL, BE BRIEF. LONG SCRIBE NOTES, NO MATTER HOW WELL WRITTEN,
 %**** ARE NEVER READ BY ANYBODY.
-This lecture's notes illustrate some uses of
-various \LaTeX\ macros.  
-Take a look at this and imitate.
 
-\section{Some theorems and stuff} % Don't be this informal in your notes!
+\section{Desirable properties of a cryptocurrency system} % Don't be this informal in your notes!
+For a cryptocurrency system to be practical and usable, it should meet the following requirements:
 
-We now delve right into the proof.
-
-\begin{lemma}
-This is the first lemma of the lecture.
-\end{lemma}
-
-\begin{proof}
-The proof is by induction on $\ldots$.
-For fun, we throw in a figure.
-%%%NOTE USAGE !
-\fig{1}{1in}{A Fun Figure}
-
-This is the end of the proof, which is marked with a little box.
-\end{proof}
+\begin{itemize}
+	\item \textbf{Secure:}
+	\begin{itemize}
+		\item \textbf{Theft:} Only owner should be able to spend the money, and no one else.
+		\item \textbf{Consensus:} If money is spent, everybody should agree.
+	\end{itemize}
+	\item \textbf{Distributed:} The transaction log is distributed among all the parties using the system.
+	\item \textbf{Anonymity:} Only transactions are public, but not the identities of the sender, or the receiver.
+	\item \textbf{Scalable:} Achieves high throughput in terms of the number of transactions executed per unit time.
+	\item \textbf{Efficient:} The storage space required to store the transaction log, and the bandwidth and the processing power required to execute the distributed protocol should be optimal.
+	\item \textbf{Fault tolerance:} Should be resilient to network interruptions, or faulty, or adversarial nodes.
+	\item \textbf{Fairness:} Like in any trade, the payer receives~\cite{1} the item/service she has paid for.
+\end{itemize}
 
 \subsection{A few items of note}
 
-Here is an itemized list:
-\begin{itemize}
-\item this is the first item;
-\item this is the second item.
-\end{itemize}
-
-Here is an enumerated list:
-\begin{enumerate}
-\item this is the first item;
-\item this is the second item.
-\end{enumerate}
-
-Here is an exercise:
-
-{\bf Exercise:}  Show that ${\rm P}\ne{\rm NP}$.
-
-Here is how to define things in the proper mathematical style.
-Let $f_k$ be the $AND-OR$ function, defined by
-
-\[ f_k(x_1, x_2, \ldots, x_{2^k}) = \left\{ \begin{array}{ll}
-
-	x_1 & \mbox{if $k = 0$;} \\
-
-	AND(f_{k-1}(x_1, \ldots, x_{2^{k-1}}),
-	   f_{k-1}(x_{2^{k-1} + 1}, \ldots, x_{2^k}))
-	 & \mbox{if $k$ is even;} \\
-
-	OR(f_{k-1}(x_1, \ldots, x_{2^{k-1}}),
-	   f_{k-1}(x_{2^{k-1} + 1}, \ldots, x_{2^k}))	
-	& \mbox{otherwise.} 
-	\end{array}
-	\right. \]
-
-\begin{theorem}
-This is the first theorem.
-\end{theorem}
-
-\begin{proof}
-This is the proof of the first theorem. We show how to write pseudo-code now.
-%*** USE PSEUDO-CODE ONLY IF IT IS CLEARER THAN AN ENGLISH DESCRIPTION
-
-Consider a comparison between $x$ and~$y$:
-\begin{tabbing}
-\hspace*{.25in} \= \hspace*{.25in} \= \hspace*{.25in} \= \hspace*{.25in} \= \hspace*{.25in} \=\kill
-\>{\bf if} $x$ or $y$ or both are in $S$ {\bf then } \\
-\>\> answer accordingly \\
-\>{\bf else} \\
-\>\>    Make the element with the larger score (say $x$) win the comparison \\
-\>\> {\bf if} $F(x) + F(y) < \frac{n}{t-1}$ {\bf then} \\%
-\>\>\> $F(x) \leftarrow F(x) + F(y)$ \\
-\>\>\> $F(y) \leftarrow 0$ \\
-\>\> {\bf else}  \\
-\>\>\> $S \leftarrow S \cup \{ x \} $ \\
-\>\>\> $r \leftarrow r+1$ \\
-\>\> {\bf endif} \\
-\>{\bf endif} 
-\end{tabbing}
-
-This concludes the proof.
-\end{proof}
-
-
-\section{Next topic}
-
-Here is a citation, just for fun~\cite{CW87}.
-
 \section*{References}
 \beginrefs
-\bibentry{CW87}{\sc D.~Coppersmith} and {\sc S.~Winograd}, 
-``Matrix multiplication via arithmetic progressions,''
-{\it Proceedings of the 19th ACM Symposium on Theory of Computing},
-1987, pp.~1--6.
+\bibentry{1}{\sc Jian Liu} and {\sc Wenting Li}, and {\sc Ghassan O. Karame}, and {\sc N. Asokan}
+``Toward Fairness of Cryptocurrency Payments,''
+{\it IEEE S\&P},
+2018.
 \endrefs
 
 % **** THIS ENDS THE EXAMPLES. DON'T DELETE THE FOLLOWING LINE:
