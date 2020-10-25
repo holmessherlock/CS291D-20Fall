@@ -250,6 +250,135 @@ In Bitcoin, Nakamoto consensus protocol proposes a technique called \textit{proo
 In other words, the more processing power a machine has, it has got more power in the system.
 However, \textit{proof-of-work} is resource demanding, hence not very efficient.
 \textit{Proof-of-stake} is a viable alternative that regulates a machine's power in the system as a function of the money being held in the account.
+In general, finding a correct definition of fairness is one of the major challenges in developing a new system.
+
+In this lecture, we focus on \textit{proof of stake}. 
+We study a secure protocol which achieves efficiency by sampling.
+
+\section{Sortition}
+
+Properties of the Sortition procedure:
+\begin{enumerate}
+    \item Non-interactive
+    \item Stake should be representative of the power
+    \item Efficient
+    \item Forward secure (ephemeral signatures)
+    \item Deniel of service resistance
+\end{enumerate}
+
+Next, we present a particular protocol which uses sortition, and has first three properties.
+
+\subsection{Strawman}
+\label{subsec:strawman-naive}
+
+Each actor/participant in the system follows the protocol described below:
+\begin{enumerate}
+    \item Sample $s_{i} \leftarrow{}$ random bit-string of length $n$.
+    \item Broadcast $s_{i}$. Store the random bit strings $s_{i}'$ for other actors in the system by listening on the network.
+    \item Compute $S = s_{1} \bigoplus s_{2} \bigoplus \cdots \bigoplus s_{n}$
+    \item If and only if $H(S, i) * \frac{\mbox{money owned by i}}{\mbox{total money in the system}} > c$; actor i is selected for this round.
+\end{enumerate}
+
+In step $4$, $H(S, i)$ is a hash of any function of integers $S$ and $i$ e.g., one can compute $H(S \bigoplus i)$, and $c$ is a constant threshold (decided at the start of the prototcol).
+
+Observe that the above protocol is \emph{interactive} (as an actor sends it's $s_{i}$ on the network), protocol is \emph{efficient} as everyone need to send just one message.
+And, the protocol is \emph{stake representive} as the money owned by an actor appears in the numerator of computation in step $4$ which essentially detemines
+if the agent participates in a particular round.
+
+\subsection{Issues with the naive implementation of Strawman}
+
+\begin{itemize}
+    \item If we set the threshold $c$ to be very high, then some rounds might not have any participant, hence, the \emph{availability} is compromised.
+    \item Security concers: 
+    \begin{itemize}
+        \item An actor can wait for other all other actors to send their $s_{i}'s$, and then choose its own $s_{i}$ adversarially to control the value of $S$. Note that this issue occurs as we assume an asychronous system.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Modifications over Strawman}
+
+We make use of \emph{Verifiable Random Function} (VRF) introduced by Micali, Rabin and Vadhan~\cite{2}.
+Their construction uses an involved analysis using a Schnorr proof to show security. This proof is beyond the scope of this lecture.
+
+VRF consists of 3 algorithms:
+\begin{enumerate}
+	\item Keygen(security parameter) $\rightarrow{} ~~ (pk,sk)$
+	\item Hash(m, sk) $\rightarrow$ $h,sig\_(m,pk)$
+	\item verify$(m, pk, sig)$ $\rightarrow$ retuns if the signature was produced by sk matching $pk$ on $m$
+\end{enumerate}
+
+Note that in step 2, $h$ is an additional part compared to the normal public key based signature schemes.
+We also note that $Hash = SHA256(Sign(m,sk)) \rightarrow{} sign(m,sk)$ here we have to use a  cryptogrphic hash function like SHA256, since sig has to be a deteministic algorithm.
+
+Hence, with VRF, we modify our previous protocol by changing its last step as follows:
+\begin{enumerate}
+	\item Sample $s_{i} \leftarrow{}$ random bitstring of length $n$.
+    \item Broadcast $s_{i}$. Store the random bit strings $s_{i}'$ for other actors in the system by listening on the network.
+    \item Compute $S = s_{1} \bigoplus s_{2} \bigoplus \cdots \bigoplus s_{n}$
+    \item Consists of three parts:
+    \begin{itemize}
+		\item VRF\_Hash(i $\bigoplus$ ACK(sk, T), sk) $\rightarrow{}$ h, sig
+		\item Check if $h \times \frac{\mbox{money owned by i}}{\mbox{total money in the system}} > c$
+		\item If the above condition evaluates to true, transmit $(ACK(sk, T)), pk, sig$
+	\end{itemize}
+	Each actor $i$ follows the above procedure.
+\end{enumerate}
+
+If some actor transmits $(ACK(sk, T)), pk, sig$, then other actors in the system needs to verify the message.
+
+\textbf{Verify procedure}:
+	\begin{itemize}
+		\item Check if $h \times \frac{\mbox{money owned by i}}{\mbox{total money in the system}} > c$
+		\item Check VRF\_verify(ACK(sk,T), pk, sig)
+	\end{itemize}
+
+\textbf{Remarks}:
+	\begin{itemize}
+		\item Quorum size is roughly around $1000$.
+		\item We want each agent to run VRF\_hash exactly once, i.e. no one should have an incentive to run it more than once to obtain a desired hash value $h$.
+		Otherwise, this system will become similar to the Proof of Work (computation intensive).
+		\item To achieve this, the VRF\_Hash function given message (ACK in the above example) and sk produces the same hash value. 
+		Hence, adversary do not have any incentive to run VFR\_Hash multiple times.
+		\item In some sense, both POW abd POS favors rich agents. This reiterates the issue of choosing a ``fair'' protocol.
+		Some of the other notion considered in the literature are:
+		\begin{itemize}
+			\item Proof of ``personhood''
+			\item Proof of storage
+			\item Proof of delay
+		\end{itemize}
+		\item Setting a threshold is tricky as we are faced with the tradeoff: If we set threshold too low, we might not abide to 
+		our guarantee of share proportional to the stake. Otherwise, if the threshold is set too high, then quorum size has to be reduced.
+		\item The above protocol do not have \emph{Anonymity} since the stake table is public.
+	\end{itemize}
+	
+\subsection{Practical considerations}
+While implementing the protocol as above, one might need to consider following scenarios (this is an informal discussion, and the list is by no means complete):
+\begin{itemize}
+	\item Enough people should sign up for a new system.
+	\item Account compromise (hacking) -- Important to keep secret key safe for POS
+	\item ``Fairness'' -- initially, with less people in the system, someone might get too rich
+	\item Faulty implementation: implementation bugs can subvert any guarantee such as security or availability.
+\end{itemize}
+
+\section*{References}
+\beginrefs
+\bibentry{1}{\sc Jian Liu} and {\sc Wenting Li}, and {\sc Ghassan O. Karame}, and {\sc N. Asokan}
+``Toward Fairness of Cryptocurrency Payments,''
+{\it IEEE S\&P},
+2018.
+
+\bibentry{2}{\sc Silvio Micali} and {\sc Michael Rabin}, and {\sc Salil Vadhan}.
+``Verifiable Random Functions'', 
+40th annual symposium on foundations of computer science (cat. No. 99CB37039),
+{\it IEEE S\&P},
+1999.
+
+\endrefs
+
+% **** THIS ENDS THE EXAMPLES. DON'T DELETE THE FOLLOWING LINE:
+
+\end{document}
+
 
 \section*{References}
 \beginrefs
